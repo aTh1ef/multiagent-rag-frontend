@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api-client";
+import { loginSchema, firstFieldError } from "@/lib/validation";
 import type { PublicUser } from "@/lib/types";
 
 export function LoginForm() {
@@ -19,11 +20,18 @@ export function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      toast.error(firstFieldError(parsed.error));
+      return;
+    }
+
     setLoading(true);
     try {
       await apiFetch<{ user: PublicUser }>("/api/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(parsed.data),
       });
       router.push("/chat");
       router.refresh();
