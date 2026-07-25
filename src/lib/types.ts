@@ -42,13 +42,33 @@ export interface Citation {
 
 export type MessageRole = "USER" | "ASSISTANT";
 
+export type AgentRoute = "rag" | "general" | "history_only";
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
   content: string;
   citations: Citation[] | null;
+  route: AgentRoute | null;
   createdAt: string;
 }
+
+// Which agents ran for a given route, in order, for display purposes.
+export const AGENT_PATH: Record<AgentRoute, { key: string; label: string }[]> = {
+  rag: [
+    { key: "supervisor", label: "Supervisor" },
+    { key: "retrieval", label: "Retrieval" },
+    { key: "reasoning", label: "Reasoning" },
+  ],
+  general: [
+    { key: "supervisor", label: "Supervisor" },
+    { key: "reasoning", label: "Reasoning" },
+  ],
+  history_only: [
+    { key: "supervisor", label: "Supervisor" },
+    { key: "reasoning", label: "Reasoning" },
+  ],
+};
 
 export interface ChatSessionSummary {
   id: string;

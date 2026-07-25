@@ -1,13 +1,38 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Compass, Search, Sparkles } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./message-bubble";
 import { MessageInput } from "./message-input";
 import { useMessages } from "@/hooks/use-messages";
 import { useSession } from "@/hooks/use-session";
 import { DEFAULT_GEMINI_MODEL } from "@/lib/types";
+
+const PIPELINE_STAGES = [
+  { label: "Supervisor is deciding how to route this...", Icon: Compass },
+  { label: "Searching your documents...", Icon: Search },
+  { label: "Reasoning over the context...", Icon: Sparkles },
+];
+
+function PipelineStatus() {
+  const [stage, setStage] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setStage((s) => Math.min(s + 1, PIPELINE_STAGES.length - 1)), 1300);
+    return () => clearInterval(id);
+  }, []);
+
+  const { label, Icon } = PIPELINE_STAGES[stage];
+
+  return (
+    <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm text-muted-foreground">
+      <Icon className="size-3.5 text-primary" />
+      {label}
+      <Loader2 className="size-3.5 animate-spin" />
+    </div>
+  );
+}
 
 export function ChatWindow({ sessionId }: { sessionId: string }) {
   const { session, updateModel } = useSession(sessionId);
@@ -44,9 +69,7 @@ export function ChatWindow({ sessionId }: { sessionId: string }) {
 
           {sending && (
             <div className="flex justify-start">
-              <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm text-muted-foreground">
-                <Loader2 className="size-3.5 animate-spin" /> Thinking...
-              </div>
+              <PipelineStatus />
             </div>
           )}
           <div ref={bottomRef} />
