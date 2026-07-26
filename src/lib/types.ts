@@ -5,19 +5,21 @@ export interface PublicUser {
   createdAt: string;
 }
 
-// gemini-2.5-pro and gemini-2.5-flash-lite hit permanent free-tier quota blocks on this account,
-// so the picker uses confirmed-working models spanning the same lite/standard/strong tiers.
-export const ALLOWED_GEMINI_MODELS = ["gemini-3.5-flash-lite", "gemini-2.5-flash", "gemini-3.5-flash"] as const;
+// Gemini free-tier model availability has proven inconsistent across API keys/projects (both
+// gemini-2.5-pro/-flash-lite and, on a different key, gemini-2.5-flash itself have been blocked
+// outright). The gemini-3.x family has been the one consistently working tier, so the picker
+// standardizes on that instead of mixing generations. Must mirror backend/src/config/env.ts.
+export const ALLOWED_GEMINI_MODELS = ["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.6-flash"] as const;
 
 export type GeminiModel = (typeof ALLOWED_GEMINI_MODELS)[number];
 
 export const GEMINI_MODEL_LABELS: Record<GeminiModel, string> = {
   "gemini-3.5-flash-lite": "Gemini 3.5 Flash-Lite",
-  "gemini-2.5-flash": "Gemini 2.5 Flash",
   "gemini-3.5-flash": "Gemini 3.5 Flash",
+  "gemini-3.6-flash": "Gemini 3.6 Flash",
 };
 
-export const DEFAULT_GEMINI_MODEL: GeminiModel = "gemini-2.5-flash";
+export const DEFAULT_GEMINI_MODEL: GeminiModel = "gemini-3.5-flash";
 
 export type DocumentStatus = "PROCESSING" | "COMPLETED" | "FAILED";
 
